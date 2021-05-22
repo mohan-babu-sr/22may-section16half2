@@ -22,13 +22,24 @@ const renderCountry = function (data, className = '') {
   countriesContainer.style.opacity = 1;
 };
 
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+}; 
 
-const whereAmI = async function (country) {
-  const res = await fetch(`https://restcountries.eu/rest/v2/name/${country}`);
+const whereAmI = async function () {
+  const pos=await getPosition();
+  const { latitude: lat, longitude: lng } = pos.coords;
+  const resGeo=await fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+  const dataGeo=await resGeo.json();
+  console.log(dataGeo); 
+
+  const res = await fetch(`https://restcountries.eu/rest/v2/name/${dataGeo.city}`);
   const data=await res.json();
-  console.log(res);
+  console.log(data);
   renderCountry(data[0]);
 };
 
-whereAmI('india');
+whereAmI();
 console.log('FIRST');
